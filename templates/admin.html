@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel • Edit Content</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f7fa;
+            padding: 40px 24px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 32px;
+            color: #1a2a3a;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: #5a6e7c;
+            margin-bottom: 32px;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .nav-btn.active {
+            background: #1e3a5f;
+            color: white;
+            border-color: #1e3a5f;
+        }
+        
+        .add-btn {
+            background: #1e3a5f;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 24px;
+            margin-right: 12px;
+            transition: background 0.2s;
+        }
+        
+        .add-btn:hover {
+            background: #0f2b44;
+        }
+        
+        .add-chapter-btn {
+            background: #2c5a7a;
+        }
+        
+        .questions-table, .chapters-table {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-top: 24px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            text-align: left;
+            padding: 16px;
+            background: #f8fafc;
+            font-weight: 600;
+            color: #1a2a3a;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #e9edf2;
+            vertical-align: top;
+        }
+        
+        .chapter-row {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .chapter-row:hover {
+            background: #f8fafc;
+        }
+        
+        .chapter-row.active {
+            background: #eef2ff;
+            border-left: 3px solid #1e3a5f;
+        }
+        
+        .question-text, .answer-text {
+            max-width: 300px;
+            word-break: break-word;
+        }
+        
+        .edit-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        .edit-btn, .save-btn, .delete-btn {
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 8px;
+            border: none;
+        }
+        
+        .edit-btn {
+            background: #e9edf2;
+            color: #1a2a3a;
+        }
+        
+        .save-btn {
+            background: #1e3a5f;
+            color: white;
+        }
+        
+        .delete-btn {
+            background: #fee2e2;
+            color: #c62828;
+        }
+        
+        .delete-chapter-btn {
+            background: #fee2e2;
+            color: #c62828;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 24px;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .modal-content h3 {
+            margin-bottom: 20px;
+        }
+        
+        .modal-content input, .modal-content textarea, .modal-content select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+        }
+        
+        .modal-content textarea {
+            min-height: 100px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        
+        .modal-buttons button {
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .modal-buttons .save {
+            background: #1e3a5f;
+            color: white;
+        }
+        
+        .modal-buttons .cancel {
+            background: #e9edf2;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 24px 0 16px;
+            color: #1a2a3a;
+        }
+        
+        @media (max-width: 768px) {
+            table, thead, tbody, th, td, tr { display: block; }
+            th { display: none; }
+            tr { margin-bottom: 16px; border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px; }
+            td { display: flex; justify-content: space-between; align-items: center; border: none; padding: 8px; }
+            td:before { content: attr(data-label); font-weight: 600; width: 40%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Panel</h1>
+        <p class="subtitle">Manage chapters and questions for all subjects</p>
+        
+        <div class="nav-buttons" id="navButtons">
+            <button class="nav-btn" data-subject="maths">Mathematics</button>
+            <button class="nav-btn" data-subject="physics">Physics</button>
+            <button class="nav-btn" data-subject="chemistry">Chemistry</button>
+            <button class="nav-btn" data-subject="biology">Biology</button>
+        </div>
+        
+        <button class="add-btn add-chapter-btn" id="addChapterBtn">+ Add New Chapter</button>
+        
+        <div class="section-title">Chapters</div>
+        <div class="chapters-table">
+            <table id="chaptersTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Chapter Name</th>
+                        <th>Questions</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="chaptersBody">
+                    <tr><td colspan="4">Select a subject to view chapters</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="section-title" id="questionsTitle" style="display: none;">Questions</div>
+        <div class="questions-table" id="questionsTable" style="display: none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Question</th>
+                        <th>Answer</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="questionsBody">
+                    <tr><td colspan="4">Select a chapter to view questions</td></tr>
+                </tbody>
+            </table>
+            <div style="padding: 16px;">
+                <button class="add-btn" id="addQuestionBtn" style="margin-bottom: 0;">+ Add Question</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="chapterModal" class="modal">
+        <div class="modal-content">
+            <h3>Add New Chapter</h3>
+            <select id="newChapterSubject">
+                <option value="maths">Mathematics</option>
+                <option value="physics">Physics</option>
+                <option value="chemistry">Chemistry</option>
+                <option value="biology">Biology</option>
+            </select>
+            <input type="text" id="newChapterName" placeholder="Chapter name (e.g., Calculus, Mechanics)">
+            <div class="modal-buttons">
+                <button class="cancel" onclick="closeChapterModal()">Cancel</button>
+                <button class="save" onclick="addChapter()">Add Chapter</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="questionModal" class="modal">
+        <div class="modal-content">
+            <h3>Add New Question</h3>
+            <textarea id="newQuestionText" placeholder="Enter the question text..."></textarea>
+            <textarea id="newAnswerText" placeholder="Enter the answer (optional)..."></textarea>
+            <div class="modal-buttons">
+                <button class="cancel" onclick="closeQuestionModal()">Cancel</button>
+                <button class="save" onclick="addQuestion()">Add Question</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentSubject = 'maths';
+        let selectedChapterId = null;
+        let chapters = [];
+        let questions = [];
+        let editingQuestionId = null;
+        
+        const navButtons = document.querySelectorAll('.nav-btn');
+        navButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                navButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentSubject = btn.dataset.subject;
+                loadChapters();
+                document.getElementById('questionsTitle').style.display = 'none';
+                document.getElementById('questionsTable').style.display = 'none';
+                selectedChapterId = null;
+            });
+        });
+        navButtons[0].classList.add('active');
+        
+        async function loadChapters() {
+            try {
+                const response = await fetch(`/api/chapters/${currentSubject}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ student_id: 'admin_view' })
+                });
+                const data = await response.json();
+                chapters = data.chapters;
+                renderChapters();
+            } catch (error) {
+                console.error('Error loading chapters:', error);
+            }
+        }
+        
+        function renderChapters() {
+            const tbody = document.getElementById('chaptersBody');
+            tbody.innerHTML = '';
+            
+            if (chapters.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">No chapters yet. Click "Add New Chapter"</td></tr>';
+                return;
+            }
+            
+            chapters.forEach(chapter => {
+                const row = tbody.insertRow();
+                row.className = 'chapter-row';
+                if (selectedChapterId === chapter.id) {
+                    row.classList.add('active');
+                }
+                row.onclick = () => selectChapter(chapter.id);
+                
+                const numCell = row.insertCell(0);
+                numCell.textContent = chapter.number;
+                numCell.setAttribute('data-label', '#');
+                
+                const nameCell = row.insertCell(1);
+                nameCell.textContent = chapter.name;
+                nameCell.setAttribute('data-label', 'Chapter Name');
+                
+                const qCell = row.insertCell(2);
+                qCell.textContent = `${chapter.done}/${chapter.total}`;
+                qCell.setAttribute('data-label', 'Questions');
+                
+                const actionCell = row.insertCell(3);
+                actionCell.setAttribute('data-label', 'Actions');
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.className = 'delete-chapter-btn';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteChapter(chapter.id);
+                };
+                actionCell.appendChild(deleteBtn);
+            });
+        }
+        
+        async function selectChapter(chapterId) {
+            selectedChapterId = chapterId;
+            renderChapters();
+            
+            try {
+                const response = await fetch(`/api/chapter/${chapterId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ student_id: 'admin_view', subject: currentSubject })
+                });
+                const data = await response.json();
+                questions = data.questions;
+                renderQuestions();
+                document.getElementById('questionsTitle').style.display = 'block';
+                document.getElementById('questionsTable').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading questions:', error);
+            }
+        }
+        
+        function renderQuestions() {
+            const tbody = document.getElementById('questionsBody');
+            tbody.innerHTML = '';
+            
+            if (questions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">No questions yet. Click "Add Question"</td></tr>';
+                return;
+            }
+            
+            questions.forEach((q, idx) => {
+                const row = tbody.insertRow();
+                
+                const numCell = row.insertCell(0);
+                numCell.textContent = idx + 1;
+                numCell.setAttribute('data-label', '#');
+                
+                const questionCell = row.insertCell(1);
+                questionCell.setAttribute('data-label', 'Question');
+                if (editingQuestionId === q.id) {
+                    const input = document.createElement('textarea');
+                    input.className = 'edit-input';
+                    input.value = q.text;
+                    input.id = `edit-question-${q.id}`;
+                    questionCell.appendChild(input);
+                } else {
+                    questionCell.textContent = q.text;
+                    questionCell.className = 'question-text';
+                }
+                
+                const answerCell = row.insertCell(2);
+                answerCell.setAttribute('data-label', 'Answer');
+                if (editingQuestionId === q.id) {
+                    const input = document.createElement('textarea');
+                    input.className = 'edit-input';
+                    input.value = q.answer || '';
+                    input.id = `edit-answer-${q.id}`;
+                    answerCell.appendChild(input);
+                } else {
+                    answerCell.textContent = q.answer || '—';
+                    answerCell.className = 'answer-text';
+                }
+                
+                const actionCell = row.insertCell(3);
+                actionCell.setAttribute('data-label', 'Actions');
+                
+                if (editingQuestionId === q.id) {
+                    const saveBtn = document.createElement('button');
+                    saveBtn.textContent = 'Save';
+                    saveBtn.className = 'save-btn';
+                    saveBtn.onclick = () => saveQuestion(q.id);
+                    actionCell.appendChild(saveBtn);
+                    
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.textContent = 'Cancel';
+                    cancelBtn.className = 'edit-btn';
+                    cancelBtn.onclick = () => { editingQuestionId = null; renderQuestions(); };
+                    actionCell.appendChild(cancelBtn);
+                } else {
+                    const editBtn = document.createElement('button');
+                    editBtn.textContent = 'Edit';
+                    editBtn.className = 'edit-btn';
+                    editBtn.onclick = () => { editingQuestionId = q.id; renderQuestions(); };
+                    actionCell.appendChild(editBtn);
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = 'Delete';
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.onclick = () => deleteQuestion(q.id);
+                    actionCell.appendChild(deleteBtn);
+                }
+            });
+        }
+        
+        async function saveQuestion(id) {
+            const newText = document.getElementById(`edit-question-${id}`).value;
+            const newAnswer = document.getElementById(`edit-answer-${id}`).value;
+            
+            try {
+                const response = await fetch('/api/update_question', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, question_text: newText, answer: newAnswer })
+                });
+                if (response.ok) {
+                    editingQuestionId = null;
+                    selectChapter(selectedChapterId);
+                }
+            } catch (error) {
+                console.error('Error saving question:', error);
+            }
+        }
+        
+        async function deleteQuestion(id) {
+            if (!confirm('Delete this question permanently?')) return;
+            
+            try {
+                const response = await fetch('/api/delete_question', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                if (response.ok) {
+                    selectChapter(selectedChapterId);
+                }
+            } catch (error) {
+                console.error('Error deleting question:', error);
+            }
+        }
+        
+        async function deleteChapter(id) {
+            if (!confirm('Delete this chapter and all its questions?')) return;
+            
+            try {
+                const response = await fetch('/api/delete_chapter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                if (response.ok) {
+                    if (selectedChapterId === id) {
+                        selectedChapterId = null;
+                        document.getElementById('questionsTitle').style.display = 'none';
+                        document.getElementById('questionsTable').style.display = 'none';
+                    }
+                    loadChapters();
+                }
+            } catch (error) {
+                console.error('Error deleting chapter:', error);
+            }
+        }
+        
+        function openChapterModal() {
+            document.getElementById('chapterModal').style.display = 'flex';
+        }
+        
+        function closeChapterModal() {
+            document.getElementById('chapterModal').style.display = 'none';
+            document.getElementById('newChapterName').value = '';
+        }
+        
+        async function addChapter() {
+            const subject = document.getElementById('newChapterSubject').value;
+            const chapterName = document.getElementById('newChapterName').value.trim();
+            
+            if (!chapterName) {
+                alert('Please enter a chapter name');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/add_chapter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subject, chapter_name: chapterName })
+                });
+                if (response.ok) {
+                    closeChapterModal();
+                    if (subject === currentSubject) {
+                        loadChapters();
+                    } else {
+                        alert(`Chapter added to ${subject}. Switch to that subject to view.`);
+                    }
+                }
+            } catch (error) {
+                console.error('Error adding chapter:', error);
+            }
+        }
+        
+        function openQuestionModal() {
+            if (!selectedChapterId) {
+                alert('Please select a chapter first');
+                return;
+            }
+            document.getElementById('questionModal').style.display = 'flex';
+        }
+        
+        function closeQuestionModal() {
+            document.getElementById('questionModal').style.display = 'none';
+            document.getElementById('newQuestionText').value = '';
+            document.getElementById('newAnswerText').value = '';
+        }
+        
+        async function addQuestion() {
+            const questionText = document.getElementById('newQuestionText').value.trim();
+            const answer = document.getElementById('newAnswerText').value.trim();
+            
+            if (!questionText) {
+                alert('Please enter a question');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/add_question', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chapter_id: selectedChapterId, question_text: questionText, answer })
+                });
+                if (response.ok) {
+                    closeQuestionModal();
+                    selectChapter(selectedChapterId);
+                }
+            } catch (error) {
+                console.error('Error adding question:', error);
+            }
+        }
+        
+        document.getElementById('addChapterBtn').onclick = openChapterModal;
+        document.getElementById('addQuestionBtn').onclick = openQuestionModal;
+        
+        loadChapters();
+    </script>
+</body>
+</html>

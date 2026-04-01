@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+# Environment
+.env
+.env.*
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# Database
+mastery.db
+student_data/

@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>ClearMind • {{ subject|title }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background 0.2s, color 0.2s;
+        }
+        
+        body.light-mode {
+            background: #f5f7fa;
+            color: #1a2a3a;
+        }
+        
+        body.dark-mode {
+            background: #1a1f2e;
+            color: #e2e8f0;
+        }
+        
+        /* Header */
+        .header {
+            padding: 20px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+        
+        body.light-mode .header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #0f2b44 100%);
+        }
+        
+        body.dark-mode .header {
+            background: linear-gradient(135deg, #0f172a 0%, #0a0f1f 100%);
+        }
+        
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .back-btn, .mode-toggle {
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        body.light-mode .back-btn, body.light-mode .mode-toggle {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        body.dark-mode .back-btn, body.dark-mode .mode-toggle {
+            background: rgba(255,255,255,0.1);
+            color: #e2e8f0;
+        }
+        
+        .back-btn:hover, .mode-toggle:hover {
+            transform: scale(1.02);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        /* Main Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 24px 24px 100px 24px;
+        }
+        
+        /* Chapter Selector Card */
+        .chapter-selector-card {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 32px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        
+        body.dark-mode .chapter-selector-card {
+            background: #2d3748;
+            border-color: #4a5568;
+        }
+        
+        .chapter-selector-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .chapter-selector-card h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .chapter-selector-card p {
+            font-size: 14px;
+            color: #5a6e7c;
+        }
+        
+        body.dark-mode .chapter-selector-card p {
+            color: #94a3b8;
+        }
+        
+        .selector-arrow {
+            margin-top: 12px;
+            font-size: 28px;
+            opacity: 0.6;
+        }
+        
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        .chapter-modal {
+            background: white;
+            border-radius: 32px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 24px;
+            animation: fadeInUp 0.3s ease;
+        }
+        
+        body.dark-mode .chapter-modal {
+            background: #2d3748;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        body.dark-mode .modal-header {
+            border-bottom-color: #4a5568;
+        }
+        
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #5a6e7c;
+        }
+        
+        .chapters-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .chapter-option {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        body.dark-mode .chapter-option {
+            background: #1a1f2e;
+            border-color: #4a5568;
+        }
+        
+        .chapter-option:hover {
+            transform: translateX(4px);
+            background: #eef2ff;
+        }
+        
+        body.dark-mode .chapter-option:hover {
+            background: #374151;
+        }
+        
+        .chapter-option-info h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .chapter-option-stats {
+            font-size: 12px;
+            color: #5a6e7c;
+        }
+        
+        body.dark-mode .chapter-option-stats {
+            color: #94a3b8;
+        }
+        
+        .chapter-progress {
+            text-align: right;
+        }
+        
+        .progress-mini {
+            width: 80px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            height: 6px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+        
+        body.dark-mode .progress-mini {
+            background: #4a5568;
+        }
+        
+        .progress-mini-fill {
+            background: #1e3a5f;
+            height: 100%;
+            width: 0%;
+            border-radius: 10px;
+        }
+        
+        body.dark-mode .progress-mini-fill {
+            background: #60a5fa;
+        }
+        
+        .chapter-percent {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        /* Questions Area */
+        .questions-area {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .questions-area.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .chapter-title-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        body.dark-mode .chapter-title-bar {
+            border-bottom-color: #4a5568;
+        }
+        
+        .chapter-title-bar h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .change-chapter-btn {
+            background: none;
+            border: 1px solid #e2e8f0;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        
+        body.light-mode .change-chapter-btn {
+            background: white;
+        }
+        
+        body.dark-mode .change-chapter-btn {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+        
+        /* Progress Section */
+        .progress-section {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 24px 20px;
+            backdrop-filter: blur(10px);
+            z-index: 99;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            transition: background 0.2s;
+        }
+        
+        body.light-mode .progress-section {
+            background: rgba(255,255,255,0.95);
+        }
+        
+        body.dark-mode .progress-section {
+            background: rgba(26,31,46,0.95);
+            border-top-color: rgba(255,255,255,0.1);
+        }
+        
+        .progress-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .progress-title {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .progress-bar-container {
+            background: #e2e8f0;
+            border-radius: 20px;
+            height: 8px;
+            overflow: hidden;
+        }
+        
+        body.dark-mode .progress-bar-container {
+            background: #2d3748;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #1e3a5f, #2c5a7a);
+            height: 100%;
+            width: 0%;
+            border-radius: 20px;
+            transition: width 0.3s;
+        }
+        
+        body.dark-mode .progress-fill {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+        }
+        
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+        
+        /* Question Cards */
+        .questions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 100px;
+        }
+        
+        .question-card {
+            border-radius: 20px;
+            padding: 20px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        body.light-mode .question-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+        }
+        
+        body.dark-mode .question-card {
+            background: #2d3748;
+            border: 1px solid #4a5568;
+        }
+        
+        .question-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        
+        .checkbox {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        
+        body.light-mode .checkbox {
+            border: 2px solid #cbd5e1;
+            background: white;
+        }
+        
+        body.dark-mode .checkbox {
+            border: 2px solid #4a5568;
+            background: #1a1f2e;
+        }
+        
+        .checkbox.completed {
+            background: #1e3a5f;
+            border-color: #1e3a5f;
+        }
+        
+        body.dark-mode .checkbox.completed {
+            background: #3b82f6;
+            border-color: #3b82f6;
+        }
+        
+        .checkbox.completed::after {
+            content: "✓";
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .question-number {
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+        
+        body.light-mode .question-number {
+            background: #e9edf2;
+            color: #1e3a5f;
+        }
+        
+        body.dark-mode .question-number {
+            background: #4a5568;
+            color: #94a3b8;
+        }
+        
+        .question-text {
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.5;
+            flex: 1;
+        }
+        
+        .view-answer-btn {
+            margin-top: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: none;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+        
+        body.light-mode .view-answer-btn {
+            background: #e9edf2;
+            color: #1e3a5f;
+        }
+        
+        body.dark-mode .view-answer-btn {
+            background: #4a5568;
+            color: #60a5fa;
+        }
+        
+        .view-answer-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .answer-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid;
+            display: none;
+        }
+        
+        body.light-mode .answer-section {
+            border-top-color: #e9edf2;
+        }
+        
+        body.dark-mode .answer-section {
+            border-top-color: #4a5568;
+        }
+        
+        .answer-section.show {
+            display: block;
+        }
+        
+        .answer-label {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        
+        .answer-text {
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        
+        body.light-mode .answer-text {
+            background: #f8fafc;
+            color: #2c5a7a;
+        }
+        
+        body.dark-mode .answer-text {
+            background: #1a1f2e;
+            color: #94a3b8;
+        }
+        
+        .celebration {
+            background: #e8f5e9;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 24px;
+            display: none;
+            animation: bounce 0.5s;
+        }
+        
+        body.dark-mode .celebration {
+            background: #1e3a5f;
+        }
+        
+        .celebration h3 {
+            color: #2e7d32;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        
+        body.dark-mode .celebration h3 {
+            color: #86efac;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 16px 16px 100px; }
+            .question-card { padding: 16px; }
+            .header h1 { font-size: 20px; }
+            .chapter-selector-card { padding: 20px; }
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <div class="header">
+        <div class="header-content">
+            <button class="back-btn" onclick="window.location.href='/'">Back</button>
+            <h1>{{ subject|title }}</h1>
+            <button class="mode-toggle" id="modeToggle">Focus Mode</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Chapter Selector Card -->
+        <div class="chapter-selector-card" id="selectorCard">
+            <h2 id="selectedChapterName">Select a chapter</h2>
+            <p>Tap to choose which chapter to study</p>
+            <div class="selector-arrow">▼</div>
+        </div>
+        
+        <!-- Modal for Chapter Selection -->
+        <div class="modal-overlay" id="chapterModal">
+            <div class="chapter-modal">
+                <div class="modal-header">
+                    <h3>Select a chapter</h3>
+                    <button class="close-modal" id="closeModalBtn">✕</button>
+                </div>
+                <div class="chapters-list" id="chaptersList">
+                    <div class="loading">Loading chapters...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Questions Area (hidden until chapter selected) -->
+        <div class="questions-area" id="questionsArea">
+            <div class="chapter-title-bar">
+                <h2 id="currentChapterTitle">Chapter 1</h2>
+                <button class="change-chapter-btn" id="changeChapterBtn">Change chapter</button>
+            </div>
+            
+            <div class="celebration" id="celebration">
+                <h3>Chapter Mastered</h3>
+                <p>Ready to move to the next chapter</p>
+            </div>
+            
+            <div class="questions-list" id="questionsList">
+                <div class="loading">Loading questions...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Progress Bar -->
+    <div class="progress-section" id="progressSection" style="display: none;">
+        <div class="progress-container">
+            <div class="progress-title">Chapter Progress</div>
+            <div class="progress-bar-container">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-stats">
+                <span id="doneCount">0</span> of <span id="totalCount">0</span> mastered
+                <span id="percentDisplay">0%</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Mode toggle
+        let currentMode = localStorage.getItem('studentMode') || 'light';
+        function setMode(mode) {
+            if (mode === 'dark') {
+                document.body.classList.remove('light-mode');
+                document.body.classList.add('dark-mode');
+                document.getElementById('modeToggle').textContent = 'Light Mode';
+                localStorage.setItem('studentMode', 'dark');
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.body.classList.add('light-mode');
+                document.getElementById('modeToggle').textContent = 'Focus Mode';
+                localStorage.setItem('studentMode', 'light');
+            }
+        }
+        setMode(currentMode);
+        document.getElementById('modeToggle').onclick = () => setMode(document.body.classList.contains('light-mode') ? 'dark' : 'light');
+        
+        // Student ID
+        let studentId = localStorage.getItem('masteryStudentId');
+        if (!studentId) {
+            studentId = 's_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+            localStorage.setItem('masteryStudentId', studentId);
+        }
+        
+        const subject = "{{ subject }}";
+        let chapters = [];
+        let currentChapter = null;
+        let questions = [];
+        let totalCount = 0;
+        let doneCount = 0;
+        let hasCelebrated = false;
+        
+        // DOM elements
+        const selectorCard = document.getElementById('selectorCard');
+        const chapterModal = document.getElementById('chapterModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const chaptersList = document.getElementById('chaptersList');
+        const questionsArea = document.getElementById('questionsArea');
+        const progressSection = document.getElementById('progressSection');
+        const currentChapterTitle = document.getElementById('currentChapterTitle');
+        const changeChapterBtn = document.getElementById('changeChapterBtn');
+        const selectedChapterName = document.getElementById('selectedChapterName');
+        
+        // Load chapters
+        async function loadChapters() {
+            try {
+                const response = await fetch(`/api/chapters/${subject}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ student_id: studentId })
+                });
+                const data = await response.json();
+                chapters = data.chapters;
+                renderChapterList();
+                
+                // Check if there's a saved chapter in localStorage
+                const savedChapterId = localStorage.getItem(`currentChapter_${subject}`);
+                if (savedChapterId) {
+                    const savedChapter = chapters.find(c => c.id == savedChapterId);
+                    if (savedChapter) {
+                        selectChapter(savedChapter);
+                        return;
+                    }
+                }
+                
+                // Auto-select first chapter if available
+                if (chapters.length > 0) {
+                    selectChapter(chapters[0]);
+                }
+            } catch (error) {
+                console.error('Error loading chapters:', error);
+                chaptersList.innerHTML = '<div class="loading">Failed to load chapters</div>';
+            }
+        }
+        
+        function renderChapterList() {
+            chaptersList.innerHTML = '';
+            if (chapters.length === 0) {
+                chaptersList.innerHTML = '<div class="loading">No chapters available</div>';
+                return;
+            }
+            
+            chapters.forEach(chapter => {
+                const percent = chapter.percent || 0;
+                const option = document.createElement('div');
+                option.className = 'chapter-option';
+                option.onclick = () => {
+                    selectChapter(chapter);
+                    closeModal();
+                };
+                option.innerHTML = `
+                    <div class="chapter-option-info">
+                        <h4>${chapter.name}</h4>
+                        <div class="chapter-option-stats">${chapter.done} of ${chapter.total} mastered</div>
+                    </div>
+                    <div class="chapter-progress">
+                        <div class="progress-mini">
+                            <div class="progress-mini-fill" style="width: ${percent}%"></div>
+                        </div>
+                        <div class="chapter-percent">${percent}%</div>
+                    </div>
+                `;
+                chaptersList.appendChild(option);
+            });
+        }
+        
+        async function selectChapter(chapter) {
+            currentChapter = chapter;
+            selectedChapterName.textContent = chapter.name;
+            currentChapterTitle.textContent = chapter.name;
+            
+            // Save to localStorage
+            localStorage.setItem(`currentChapter_${subject}`, chapter.id);
+            
+            // Load questions for this chapter
+            await loadChapterQuestions(chapter.id);
+            
+            // Show questions area and progress bar
+            questionsArea.classList.add('active');
+            progressSection.style.display = 'block';
+        }
+        
+        async function loadChapterQuestions(chapterId) {
+            try {
+                const response = await fetch(`/api/chapter/${chapterId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ student_id: studentId, subject: subject })
+                });
+                const data = await response.json();
+                questions = data.questions;
+                totalCount = questions.length;
+                doneCount = questions.filter(q => q.done === 1).length;
+                updateProgress();
+                renderQuestions();
+                hasCelebrated = false;
+            } catch (error) {
+                console.error('Error loading questions:', error);
+                document.getElementById('questionsList').innerHTML = '<div class="loading">Failed to load questions</div>';
+            }
+        }
+        
+        function updateProgress() {
+            const percent = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+            document.getElementById('progressFill').style.width = `${percent}%`;
+            document.getElementById('doneCount').textContent = doneCount;
+            document.getElementById('totalCount').textContent = totalCount;
+            document.getElementById('percentDisplay').textContent = `${percent}%`;
+            
+            // Update chapter progress in the list if modal is open
+            if (chapters.length > 0 && currentChapter) {
+                const chapterIndex = chapters.findIndex(c => c.id === currentChapter.id);
+                if (chapterIndex !== -1) {
+                    chapters[chapterIndex].done = doneCount;
+                    chapters[chapterIndex].percent = percent;
+                    renderChapterList();
+                }
+            }
+            
+            if (doneCount === totalCount && totalCount > 0 && !hasCelebrated) {
+                hasCelebrated = true;
+                const celebration = document.getElementById('celebration');
+                celebration.style.display = 'block';
+                setTimeout(() => {
+                    celebration.style.opacity = '0';
+                    setTimeout(() => {
+                        celebration.style.display = 'none';
+                        celebration.style.opacity = '1';
+                    }, 1000);
+                }, 3000);
+            }
+        }
+        
+        async function toggleQuestion(questionId, currentDone, index) {
+            const newDone = currentDone ? 0 : 1;
+            try {
+                const response = await fetch('/api/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        student_id: studentId,
+                        subject: subject,
+                        chapter_id: currentChapter.id,
+                        question_id: questionId,
+                        done: newDone
+                    })
+                });
+                const data = await response.json();
+                doneCount = data.done_count;
+                totalCount = data.total;
+                updateProgress();
+                questions[index].done = newDone;
+                renderQuestions();
+            } catch (error) {
+                console.error('Error toggling question:', error);
+            }
+        }
+        
+        function toggleAnswer(index) {
+            const answerSection = document.getElementById(`answer-${index}`);
+            if (answerSection) {
+                answerSection.classList.toggle('show');
+            }
+        }
+        
+        function renderQuestions() {
+            const container = document.getElementById('questionsList');
+            container.innerHTML = '';
+            
+            if (questions.length === 0) {
+                container.innerHTML = '<div class="loading">No questions available</div>';
+                return;
+            }
+            
+            questions.forEach((q, index) => {
+                const isCompleted = q.done === 1;
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                card.innerHTML = `
+                    <div class="question-header">
+                        <div class="checkbox ${isCompleted ? 'completed' : ''}" onclick="toggleQuestion(${q.id}, ${q.done}, ${index})"></div>
+                        <div class="question-text">
+                            <div class="question-number">Q${index + 1}</div>
+                            ${escapeHtml(q.text)}
+                            <button class="view-answer-btn" onclick="toggleAnswer(${index})">View answer</button>
+                        </div>
+                    </div>
+                    <div class="answer-section" id="answer-${index}">
+                        <div class="answer-label">Answer</div>
+                        <div class="answer-text">${escapeHtml(q.answer || 'Answer will be added later')}</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function openModal() {
+            renderChapterList();
+            chapterModal.classList.add('show');
+        }
+        
+        function closeModal() {
+            chapterModal.classList.remove('show');
+        }
+        
+        // Event listeners
+        selectorCard.onclick = openModal;
+        changeChapterBtn.onclick = openModal;
+        closeModalBtn.onclick = closeModal;
+        chapterModal.onclick = (e) => {
+            if (e.target === chapterModal) closeModal();
+        };
+        
+        // Load initial data
+        loadChapters();
+    </script>
+</body>
+</html>
